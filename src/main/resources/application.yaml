@@ -1,3 +1,23 @@
+server:
+  port: 8761
+
 spring:
   application:
     name: wooricard-eureka
+
+eureka:
+  instance:
+    hostname: localhost
+  server:
+    eviction-interval-timer-in-ms: 30000 # 죽은 서비스를 목록에서 제거하기 위해 검사하는 주기(30초)
+  client:
+    register-with-eureka: false # Eureka 서버 자신을 Eureka 서비스 목록에 등록하지 않음
+    fetch-registry: false # 다른 Eureka 서버로부터 등록된 서비스 목록을 가져오지 않음(현재 프로젝트에서는 단일 Eureka 서버 사용)
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+logging:
+  level:
+    com.netflix.eureka: INFO
+    com.netflix.discovery: INFO
+    org.springframework.cloud.netflix.eureka.server: DEBUG
