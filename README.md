@@ -38,7 +38,7 @@
 MSA 구조의 안정적인 구동을 위해 아래 순서를 권장합니다.
 
 1. **Eureka Server** (본 서비스) ◀ **NOW**
-2. **[Config Server](../wooricard-config)**: Eureka 등록 후 설정 정보 서빙 시작
+2. **[Config Server](https://github.com/woori-card-msa/wooricard-config)**: Eureka 등록 후 설정 정보 서빙 시작
 3. **Microservices**: Gateway 및 도메인 서비스(Approval, Settlement 등) 실행
 
 ---
