@@ -1,69 +1,65 @@
-# 🧭 Wooricard Eureka Server
+# 🧭 Woori Card Eureka Server
 
-우리카드 MSA 프로젝트의 **서비스 디스커버리(Service Discovery)** 를 담당하는 Eureka 서버입니다. 모든 마이크로서비스는 이 서버에 자신의 위치를 등록하고, 서로의 주소를 조회합니다.
+우리카드 MSA(Microservice Architecture) 프로젝트의 **서비스 디스커버리(Service Discovery)** 를 담당하는 핵심 서버입니다. 
 
-## 🚀 팀원 가이드 (Eureka Client 설정)
 
-승인/결제, 정산, 매입 청구 및 API Gateway 담당자분들은 본인의 프로젝트에 아래 설정을 적용하여 유레카 서버에 등록해 주세요.
 
-### 1. 의존성 추가 (build.gradle)
-```groovy
-dependencies {
-    // Eureka Client 라이브러리 추가
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-}
-```
-
-### 2. 설정 추가 (application.yml)
-서비스 이름은 아래 **[서비스 네이밍 규칙]** 을 참고하여 통일해 주세요.
-
-```yaml
-spring:
-  application:
-    name: [명세서의 서비스명 입력] # 예: wooricard-approval-service
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://192.168.1.80:8761/eureka/
-  instance:
-    # 각자의 컴퓨터 이름을 인식하지 못할 수 있으므로 IP 주소 기반 등록 권장
-    prefer-ip-address: true
-```
-
-### 3. 유레카 활성화 (Main 클래스)
-메인 애플리케이션 클래스 상단에 어노테이션을 추가합니다.
-
-```java
-@SpringBootApplication
-@EnableDiscoveryClient // 유레카 클라이언트 활성화
-public class YourServiceApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(YourServiceApplication.class, args);
-    }
-}
-```
+모든 마이크로서비스(승인, 정산, 매입 등)는 기동 시 이 서버에 자신의 네트워크 위치를 등록하며, 서비스 간 통신 시 물리적 주소 대신 **서비스 이름**을 통해 서로를 식별할 수 있게 합니다.
 
 ---
 
-## 📋 서비스 네이밍 규칙 (통일 필수)
-
-유레카 대시보드에 표시될 서비스 이름입니다. API Gateway 설정과 연동되므로 반드시 아래 이름을 사용해 주세요.
-
-| 역할 | 서비스 이름 (`spring.application.name`) | 담당자    | 포트 |
-| :--- | :--- |:-------| :--- |
-| **Service Discovery** | `wooricard-eureka` | **민영** | 8761 |
-| **API Gateway** | `wooricard-gateway` | 경록     | 8080 |
-| **승인/결제 서비스** | `wooricard-approval-service` | 유림     | 8081 |
-| **정산 서비스** | `wooricard-settlement-service` | 색빛     | 8082 |
-| **매입 청구 서비스** | `wooricard-billing-service` | 민정     | 8083 |
+## 🏗 주요 역할
+* **Service Registration**: 각 마이크로서비스의 인스턴스 정보 저장 및 관리
+* **Service Discovery**: API Gateway 및 각 서비스가 다른 서비스의 위치를 찾을 수 있도록 정보 제공
+* **Health Check**: 등록된 서비스들의 상태를 주기적으로 확인하여 가용성 확보
 
 ---
 
-## 🔍 상태 확인 방법
+## 🚀 실행 방법 (Getting Started)
 
-서버를 실행한 후 아래 주소에 접속하여 본인의 서비스 이름이 **Instances currently registered with Eureka** 목록에 뜨는지 확인하세요.
+### 1. 사전 요구 사항
+* **Java 17** 이상
+* **Gradle**
 
-* **Eureka Dashboard:** [http://192.168.1.80:8761](http://localhost:8761)
+### 2. 서버 기동
+이 서버는 프로젝트 인프라의 시작점입니다. **가장 먼저 실행**되어야 합니다.
+
+```bash
+./gradlew bootRun
+```
+
+* **Default Port**: `8761`
+* **Service Name**: `wooricard-eureka`
 
 ---
+
+## 🚦 인프라 실행 순서 (Dependency)
+
+MSA 구조의 안정적인 구동을 위해 아래 순서를 권장합니다.
+
+1. **Eureka Server** (본 서비스) ◀ **NOW**
+2. **[Config Server](../wooricard-config)**: Eureka 등록 후 설정 정보 서빙 시작
+3. **Microservices**: Gateway 및 도메인 서비스(Approval, Settlement 등) 실행
+
+---
+
+## 🔍 모니터링 및 상태 확인
+
+서버 실행 후 웹 브라우저를 통해 실시간 등록 현황을 확인할 수 있습니다.
+
+* **Eureka Dashboard**: [http://localhost:8761](http://localhost:8761)
+    * **Status**: 현재 실행 중인 인스턴스 목록 확인 가능
+    * **General Info**: 서버의 메모리 및 리소스 사용량 확인
+
+---
+
+## 📘 팀원용 클라이언트 설정 가이드
+팀원분들이 각자의 프로젝트를 Eureka에 연결하는 상세 방법은 아래 가이드 문서를 참고해 주세요.
+
+👉 **[Eureka Client 설정 가이드 바로가기 (GUIDE.md)](./GUIDE.md)**
+
+---
+
+### 💡 팁
+* 로컬 환경에서 테스트 시, 서비스가 정상적으로 등록되지 않는다면 `application.yml`의 `eureka.instance.prefer-ip-address` 설정이 `true`인지 확인하세요.
+* 서비스 네이밍 규칙은 반드시 가이드에 명시된 이름을 사용해야 API Gateway 라우팅이 정상 동작합니다.
