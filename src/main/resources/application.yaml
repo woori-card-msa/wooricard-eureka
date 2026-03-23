@@ -14,6 +14,7 @@ eureka:
     register-with-eureka: false # Eureka 서버 자신을 Eureka 서비스 목록에 등록하지 않음
     fetch-registry: false # 다른 Eureka 서버로부터 등록된 서비스 목록을 가져오지 않음(현재 프로젝트에서는 단일 Eureka 서버 사용)
     service-url:
+#      defaultZone: http://192.168.1.80:8761/eureka/
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
 
 logging:
